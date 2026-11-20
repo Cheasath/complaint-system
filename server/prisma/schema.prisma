@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("STUDENT")
+  departmentId String? @db.ObjectId
+  active    Boolean  @default(true)
+  department Department? @relation(fields: [departmentId], references: [id])
+  complaints Complaint[]
+  comments Comment[]
+  statusChanges StatusHistory[]
+  createdAt DateTime @default(now())
+}
+
+model Department {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  name       String @unique
+  description String?
+  users      User[]
+  complaints Complaint[]
+}
+
+model Category {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  name       String @unique
+  complaints Complaint[]
+}
+
+model Complaint {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  reference   String   @unique
+  title       String
+  description String
+  location    String
+  priority    String
+  status      String   @default("SUBMITTED")
+  categoryId  String   @db.ObjectId
+  category    Category @relation(fields: [categoryId], references: [id])
+  studentId   String   @db.ObjectId
+  student     User     @relation(fields: [studentId], references: [id])
+  departmentId String? @db.ObjectId
+  department  Department? @relation(fields: [departmentId], references: [id])
+  comments    Comment[]
+  history     StatusHistory[]
+  attachments Attachment[]
+  feedback    Feedback?
+  resolution  String?
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StatusHistory {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  complaintId String @db.ObjectId
+  complaint   Complaint @relation(fields: [complaintId], references: [id])
+  previousStatus String?
+  newStatus   String
+  remarks     String?
+  updatedById String @db.ObjectId
+  updatedBy   User @relation(fields: [updatedById], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Comment {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  complaintId String @db.ObjectId
+  complaint   Complaint @relation(fields: [complaintId], references: [id])
+  authorId    String @db.ObjectId
+  author      User @relation(fields: [authorId], references: [id])
+  body        String
+  internal    Boolean @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Attachment {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  complaintId String @db.ObjectId
+  complaint   Complaint @relation(fields: [complaintId], references: [id])
+  fileName    String
+  fileType    String
+  fileUrl     String
+  createdAt   DateTime @default(now())
+}
+
+model Feedback {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  complaintId String @unique @db.ObjectId
+  complaint   Complaint @relation(fields: [complaintId], references: [id])
+  rating      Int
+  comment     String?
+  createdAt   DateTime @default(now())
+}
