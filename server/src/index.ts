@@ -45,7 +45,12 @@ function requireRole(...roles: string[]) {
   }
 }
 
-const cookieOptions = { httpOnly: true, sameSite: 'lax' as const, secure: process.env.NODE_ENV === 'production', maxAge: 8 * 60 * 60 * 1000 }
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const,
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: 8 * 60 * 60 * 1000,
+}
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }))
 

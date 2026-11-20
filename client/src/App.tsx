@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { BarChart3, Building2, ClipboardList, LayoutDashboard, LogOut, Moon, Plus, Search, Sun, Users } from 'lucide-react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
-const API = 'http://localhost:4000/api'
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').replace(/\/$/, '')
 
 type User = { id: string; name: string; email: string; role: 'STUDENT' | 'ADMIN' }
 type Complaint = { id: string; reference: string; title: string; status: string; priority: string; location: string; createdAt: string; updatedAt: string; category?: { name: string }; department?: { name: string } }
